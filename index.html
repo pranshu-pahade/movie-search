@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineScope – Movie Discovery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #080810;
+            --surface: #11111e;
+            --surface2: #1a1a2e;
+            --border: #252540;
+            --accent: #e040fb;
+            --accent2: #7c3aed;
+            --gold: #fbbf24;
+            --text: #f0f0ff;
+            --muted: #6060a0;
+            --radius: 16px;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Hero header */
+        .hero {
+            background: linear-gradient(135deg, #11111e 0%, #1a0a2e 50%, #0a1030 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 40px 20px 36px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(224, 64, 251, 0.12) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .hero-brand {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #e040fb, #7c3aed, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .hero-sub {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-bottom: 28px;
+        }
+
+        /* Search */
+        .search-wrap {
+            max-width: 580px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 15px 60px 15px 22px;
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(224, 64, 251, 0.12);
+        }
+
+        .search-wrap input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 50px;
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* Genre chips */
+        .genre-strip {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .genre-chip {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .genre-chip:hover,
+        .genre-chip.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(224, 64, 251, 0.1);
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 20px;
+        }
+
+        .section-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        /* Movie grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .movie-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            animation: popIn 0.4s ease both;
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .movie-card:nth-child(2) {
+            animation-delay: 0.05s;
+        }
+
+        .movie-card:nth-child(3) {
+            animation-delay: 0.1s;
+        }
+
+        .movie-card:nth-child(4) {
+            animation-delay: 0.15s;
+        }
+
+        .movie-card:nth-child(5) {
+            animation-delay: 0.2s;
+        }
+
+        .movie-card:nth-child(6) {
+            animation-delay: 0.25s;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 40px rgba(224, 64, 251, 0.15);
+        }
+
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: var(--surface2);
+            display: block;
+        }
+
+        .poster-placeholder {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: var(--surface2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 2.5rem;
+        }
+
+        .poster-placeholder span {
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .movie-info {
+            padding: 14px;
+        }
+
+        .movie-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .movie-year {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        /* Detail modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.94);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-hero {
+            display: flex;
+            gap: 0;
+        }
+
+        .modal-poster {
+            width: 200px;
+            flex-shrink: 0;
+            border-radius: 20px 0 0 0;
+            object-fit: cover;
+        }
+
+        .modal-poster-ph {
+            width: 200px;
+            flex-shrink: 0;
+            background: var(--surface2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-radius: 20px 0 0 0;
+        }
+
+        .modal-details {
+            padding: 24px;
+            flex: 1;
+        }
+
+        .modal-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            line-height: 1.1;
+        }
+
+        .modal-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .tag {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            background: rgba(224, 64, 251, 0.12);
+            color: var(--accent);
+            border: 1px solid rgba(224, 64, 251, 0.2);
+        }
+
+        .modal-rating {
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 14px;
+            font-weight: 700;
+        }
+
+        .modal-plot {
+            font-size: 0.88rem;
+            line-height: 1.65;
+            color: rgba(240, 240, 255, 0.75);
+            margin-bottom: 16px;
+        }
+
+        .modal-row {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .modal-row strong {
+            color: var(--text);
+        }
+
+        .modal-close {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            border-radius: 0 0 20px 20px;
+            padding: 14px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .modal-close:hover {
+            opacity: 0.85;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--muted);
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .api-note {
+            background: rgba(224, 64, 251, 0.06);
+            border: 1px solid rgba(224, 64, 251, 0.15);
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .api-note a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        @media (max-width: 500px) {
+            .movie-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-hero {
+                flex-direction: column;
+            }
+
+            .modal-poster,
+            .modal-poster-ph {
+                width: 100%;
+                height: 220px;
+                border-radius: 20px 20px 0 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hero">
+        <div class="hero-brand">CineScope</div>
+        <div class="hero-sub">Discover movies you'll love</div>
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Search movies… e.g. Inception, Avatar" />
+            <button class="search-btn" onclick="searchMovies()">🔍</button>
+        </div>
+        <div class="genre-strip" id="genreStrip">
+            <div class="genre-chip active" onclick="searchByGenre('Action', this)">Action</div>
+            <div class="genre-chip" onclick="searchByGenre('Comedy', this)">Comedy</div>
+            <div class="genre-chip" onclick="searchByGenre('Drama', this)">Drama</div>
+            <div class="genre-chip" onclick="searchByGenre('Sci-Fi', this)">Sci-Fi</div>
+            <div class="genre-chip" onclick="searchByGenre('Horror', this)">Horror</div>
+            <div class="genre-chip" onclick="searchByGenre('Animation', this)">Animation</div>
+            <div class="genre-chip" onclick="searchByGenre('Thriller', this)">Thriller</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="api-note">
+            ⚙️ <strong>For live search:</strong> get a free API key from <a href="https://www.omdbapi.com/"
+                target="_blank">omdbapi.com</a> and replace <code>YOUR_OMDB_KEY</code> in the script. Currently showing
+            demo cards.
+        </div>
+
+        <div class="section-title" id="sectionTitle">TRENDING NOW</div>
+        <div id="movieGrid" class="movie-grid"></div>
+        <div class="loading" id="loading" style="display:none">
+            <div class="spinner"></div>
+            <div>Searching the universe…</div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" id="modalBox">
+            <div class="modal-hero" id="modalHero"></div>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const OMDB_KEY = 'YOUR_OMDB_KEY'; // free at omdbapi.com
+
+        // Demo data for offline preview
+        const demoMovies = [
+            { Title: 'Inception', Year: '2010', imdbRating: '8.8', Genre: 'Action, Adventure, Sci-Fi', Plot: 'A thief who steals corporate secrets through the use of dream-sharing technology.', Director: 'Christopher Nolan', Actors: 'Leonardo DiCaprio, Joseph Gordon-Levitt', Poster: 'N/A', emoji: '🌀' },
+            { Title: 'The Dark Knight', Year: '2008', imdbRating: '9.0', Genre: 'Action, Crime, Drama', Plot: 'Batman faces the Joker, a criminal mastermind who plunges Gotham into chaos.', Director: 'Christopher Nolan', Actors: 'Christian Bale, Heath Ledger', Poster: 'N/A', emoji: '🦇' },
+            { Title: 'Interstellar', Year: '2014', imdbRating: '8.6', Genre: 'Adventure, Drama, Sci-Fi', Plot: 'A team of explorers travel through a wormhole in space in an attempt to ensure humanitys survival.', Director: 'Christopher Nolan', Actors: 'Matthew McConaughey, Anne Hathaway', Poster: 'N/A', emoji: '🌌' },
+            { Title: 'Parasite', Year: '2019', imdbRating: '8.5', Genre: 'Comedy, Drama, Thriller', Plot: 'Greed and class discrimination threaten the symbiotic relationship between the wealthy Park family and the destitute Kim clan.', Director: 'Bong Joon Ho', Actors: 'Song Kang-ho, Lee Sun-kyun', Poster: 'N/A', emoji: '🏠' },
+            { Title: 'The Shawshank Redemption', Year: '1994', imdbRating: '9.3', Genre: 'Drama', Plot: 'Two imprisoned men bond over a number of years, finding solace and eventual redemption.', Director: 'Frank Darabont', Actors: 'Tim Robbins, Morgan Freeman', Poster: 'N/A', emoji: '🔑' },
+            { Title: 'Spirited Away', Year: '2001', imdbRating: '8.6', Genre: 'Animation, Adventure, Family', Plot: 'During her family\'s move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods and spirits.', Director: 'Hayao Miyazaki', Actors: 'Daveigh Chase, Suzanne Pleshette', Poster: 'N/A', emoji: '🐉' },
+            { Title: 'Avengers: Endgame', Year: '2019', imdbRating: '8.4', Genre: 'Action, Adventure, Drama', Plot: 'The surviving Avengers work to reverse the damage caused by Thanos.', Director: 'Anthony & Joe Russo', Actors: 'Robert Downey Jr., Chris Evans', Poster: 'N/A', emoji: '⚡' },
+            { Title: 'Joker', Year: '2019', imdbRating: '8.4', Genre: 'Crime, Drama, Thriller', Plot: 'A failed comedian in Gotham City begins a downward spiral of revolution and crime.', Director: 'Todd Phillips', Actors: 'Joaquin Phoenix, Robert De Niro', Poster: 'N/A', emoji: '🃏' },
+        ];
+
+        let currentMovies = [...demoMovies];
+
+        function renderMovies(movies) {
+            const grid = document.getElementById('movieGrid');
+            if (!movies.length) {
+                grid.innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No movies found.</p>';
+                return;
+            }
+            grid.innerHTML = movies.map((m, i) => {
+                const hasPoster = m.Poster && m.Poster !== 'N/A';
+                return `<div class="movie-card" onclick="showModal(${i})" style="animation-delay:${i * 0.05}s">
+        ${hasPoster
+                        ? `<img class="movie-poster" src="${m.Poster}" alt="${m.Title}" loading="lazy" onerror="this.style.display='none'">`
+                        : `<div class="poster-placeholder">${m.emoji || '🎬'}<span>${m.Title.substring(0, 12)}</span></div>`}
+        <div class="movie-info">
+          <div class="movie-title">${m.Title}</div>
+          <div class="movie-meta">
+            <span class="movie-year">${m.Year}</span>
+            <span class="movie-rating">⭐ ${m.imdbRating || '–'}</span>
+          </div>
+        </div>
+      </div>`;
+            }).join('');
+        }
+
+        function showModal(i) {
+            const m = currentMovies[i];
+            const hasPoster = m.Poster && m.Poster !== 'N/A';
+            const genres = (m.Genre || '').split(',').map(g => `<span class="tag">${g.trim()}</span>`).join('');
+
+            document.getElementById('modalHero').innerHTML = `
+      ${hasPoster
+                    ? `<img class="modal-poster" src="${m.Poster}" alt="${m.Title}">`
+                    : `<div class="modal-poster-ph">${m.emoji || '🎬'}</div>`}
+      <div class="modal-details">
+        <div class="modal-title">${m.Title}</div>
+        <div class="modal-tags">${genres}</div>
+        <div class="modal-rating">⭐ ${m.imdbRating || '–'} / 10</div>
+        <div class="modal-plot">${m.Plot || 'No description available.'}</div>
+        <div class="modal-row">🎬 <strong>Director:</strong> ${m.Director || '–'}</div>
+        <div class="modal-row">👥 <strong>Cast:</strong> ${m.Actors || '–'}</div>
+        <div class="modal-row">📅 <strong>Year:</strong> ${m.Year || '–'}</div>
+      </div>
+    `;
+            document.getElementById('modalOverlay').classList.add('open');
+        }
+
+        function closeModal(e) {
+            if (!e || e.target === document.getElementById('modalOverlay') || e.target.classList.contains('modal-close')) {
+                document.getElementById('modalOverlay').classList.remove('open');
+            }
+        }
+
+        async function searchMovies() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            document.getElementById('sectionTitle').textContent = `RESULTS FOR "${query.toUpperCase()}"`;
+
+            if (OMDB_KEY === 'YOUR_OMDB_KEY') {
+                // Demo mode: filter demo movies
+                const filtered = demoMovies.filter(m => m.Title.toLowerCase().includes(query.toLowerCase()));
+                currentMovies = filtered.length ? filtered : demoMovies;
+                renderMovies(currentMovies);
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('movieGrid').innerHTML = '';
+            try {
+                const res = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(query)}&apikey=${OMDB_KEY}&type=movie`);
+                const data = await res.json();
+                if (data.Response === 'True') {
+                    // Fetch details for each
+                    const details = await Promise.all(data.Search.slice(0, 8).map(m =>
+                        fetch(`https://www.omdbapi.com/?i=${m.imdbID}&apikey=${OMDB_KEY}`).then(r => r.json())
+                    ));
+                    currentMovies = details;
+                    renderMovies(details);
+                } else {
+                    document.getElementById('movieGrid').innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">No results found.</p>';
+                }
+            } catch (e) {
+                document.getElementById('movieGrid').innerHTML = '<p style="color:var(--muted);text-align:center;grid-column:1/-1;padding:40px">Error fetching data.</p>';
+            }
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function searchByGenre(genre, el) {
+            document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('searchInput').value = genre;
+            document.getElementById('sectionTitle').textContent = genre.toUpperCase() + ' MOVIES';
+            const filtered = demoMovies.filter(m => m.Genre.toLowerCase().includes(genre.toLowerCase()));
+            currentMovies = filtered.length ? filtered : demoMovies;
+            renderMovies(currentMovies);
+        }
+
+        document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') searchMovies(); });
+
+        renderMovies(demoMovies);
+    </script>
+</body>
+
+</html>
